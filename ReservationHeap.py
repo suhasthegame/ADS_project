@@ -84,4 +84,6 @@ class MinHeap:
     def peek_min(self) -> Reservation:
         return self.heap[0] if self.heap else None
 
+    def is_empty(self) -> bool:
+        return len(self.heap) == 0
 

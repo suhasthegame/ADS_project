@@ -6,6 +6,9 @@ from Utils import validateInsertInput,validateInt,convert_int,convert_lower,vali
 #Read input file from command line argument.
 fileName = sys.argv[1]
 
+#Code to write the output to a filename inputFilename 
+f = open(fileName + '_' + 'output_file.txt','w')
+
 #Initialize the Red Black tree.
 
 rb_tree = RedBlackTree()
@@ -38,9 +41,9 @@ def PrintBook(bookID:int):
     validateInt(bookID)
     book = rb_tree.find_book(convert_int(bookID))
     if not book:
-        print(f"Book {bookID} not found in the Library\n")
+        print(f"Book {bookID} not found in the Library\n",file=f)
         return
-    book.print_details()
+    book.print_details(f)
 
 #Insert Book function 
 def InsertBook(bookID:int, bookName:str, authorName:str, availabilityStatus: str,borrowedBy: [int] = None, reservationHeap: MinHeap = None) -> None:
@@ -73,62 +76,70 @@ def PrintBooks(bookID1:int, bookID2:int):
     validateInt(bookID1,bookID2)
     books = rb_tree.search_books(bookID1,bookID2)
     if not books:
-        print(f"No books found in range {bookID1} to {bookID2}\n")
+        print(f"No books found in range {bookID1} to {bookID2}\n",file=f)
     for book in books:
-        book.print_details()
+        book.print_details(f)
 
 #Borrowing a book from GatorLibrary
 def BorrowBook(patronID:int, bookID:int, patronPriority:int):
     validateInt(patronID,patronPriority,bookID)
-    rb_tree.borrow_book(patronID,bookID,patronPriority)
+    rb_tree.borrow_book(patronID,bookID,patronPriority,f)
 
 #Returning a book.
 def ReturnBook(patronID, bookID):
     book = validateReturnBookInput(patronID,bookID,rb_tree=rb_tree)
-    rb_tree.return_book(patronID,bookID,book)
+    rb_tree.return_book(patronID,bookID,book,f)
     
 #Deleting a book from the catalog
 def DeleteBook(bookID:int) -> None:
     book = validate_book_ID(bookID,rb_tree)
     #Case 1 - No reservations found 
-    if not book.reservationHeap:
-        print(f'Book {bookID} is no longer available.\n')
+    if book.reservationHeap.is_empty():
+        print(f'Book {bookID} is no longer available\n',file=f)
     #Case 2 - Reservation is found for a single patron
     elif len(book.reservationHeap.get_patron_ids()) == 1:
         patronID = book.reservationHeap.peek_min().patronID
-        print(f'Book {bookID} is no longer available. Reservations made by Patron {patronID} has been cancelled!\n')
+        print(f'Book {bookID} is no longer available. Reservation made by Patron {patronID} has been cancelled!\n',file=f)
     #Case 3 - Reservation is found for multiple patrons
     else:
         patronIDs = map(str,book.reservationHeap.get_patron_ids())
         patronIDs = ', '.join(patronIDs)
-        print(f'Book {bookID} is no longer available. Reservations made by Patrons {patronIDs} have been cancelled!\n')
+        print(f'Book {bookID} is no longer available. Reservations made by Patrons {patronIDs} have been cancelled!\n',file=f)
     rb_tree.delete_book(bookID)
 
 #Find the closest book to the given ID from Catalog
 def FindClosestBook(targetID:int) -> None:
     validateInt(targetID)
-    rb_tree.find_closest(targetID)
+    closest = rb_tree.find_closest(targetID)
+    for book in sorted(closest, key=lambda x: x.key):
+        book.print_details(f)
+        
     
 #Get the total Nuber of Color Flips
 def ColorFlipCount() -> None:
-    pass
+    print(f"Colour Flip Count: {rb_tree.get_color_flip_count()}\n",file=f)
+
+def VisualizeTree():
+    rb_tree.visualize_tree()
 
 #Terminate the program 
 def Quit() -> None:
-    print('Program Terminated!!\n')
+    print('Program Terminated!!\n',file=f)
     exit()
-    
-    
-    
     
 
 
 #Read input from the input_filename and execute the function.
 with open(fileName, 'r') as line:
-    for instruction in line.readlines():
-        instruction.strip()
-        eval(instruction)
-
+    try:
+        for instruction in line.readlines():
+            instruction.strip()
+            eval(instruction)
+    except Exception as e:
+        print(F"ERROR OCCUREED {e}")
+    finally:
+        f.close()
+        
     
     
     
