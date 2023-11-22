@@ -4,7 +4,7 @@ RED = 0
 #Constants for availability Status.
 YES = 'yes'
 NO = 'no'
-from graphviz import Digraph
+#from graphviz import Digraph
 from ReservationHeap import Reservation,MinHeap
 
 class RBNode:
