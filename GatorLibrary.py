@@ -1,5 +1,6 @@
 #Main function for our application GatorLibrary
 import sys
+import os
 from RedBlackTree import RedBlackTree
 from ReservationHeap import MinHeap
 from Utils import validateInsertInput,validateInt,convert_int,convert_lower,validateReturnBookInput,validate_book_ID
@@ -7,7 +8,8 @@ from Utils import validateInsertInput,validateInt,convert_int,convert_lower,vali
 fileName = sys.argv[1]
 
 #Code to write the output to a filename inputFilename 
-f = open(fileName + '_' + 'output_file.txt','w')
+root, ext = os.path.splitext(fileName)
+f = open(root + '_' + 'output_file.txt','w')
 
 #Initialize the Red Black tree.
 
@@ -119,6 +121,7 @@ def FindClosestBook(targetID:int) -> None:
 def ColorFlipCount() -> None:
     print(f"Colour Flip Count: {rb_tree.get_color_flip_count()}\n",file=f)
 
+#This function can be used to visualize the tree.
 def VisualizeTree():
     rb_tree.visualize_tree()
 
@@ -133,7 +136,7 @@ def Quit() -> None:
 with open(fileName, 'r') as line:
     try:
         for instruction in line.readlines():
-            instruction.strip()
+            instruction = instruction.strip().replace(';','')
             eval(instruction)
     except Exception as e:
         print(F"ERROR OCCUREED {e}")
